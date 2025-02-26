@@ -11,7 +11,7 @@ const port = 3000;
 // ** Koneksi ke Database (Mongoose) **
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/chatdb', {  // Ganti dengan koneksi MongoDB Anda
+        await mongoose.connect('mongodb+srv://zanssxploit:pISqUYgJJDfnLW9b@cluster0.fgram.mongodb.net/?retryWrites=true&w=majority', {  // Ganti dengan koneksi MongoDB Anda
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
