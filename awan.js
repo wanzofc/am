@@ -4,17 +4,19 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid'); // Untuk membuat nama file unik
 const fileType = require('file-type'); // Untuk validasi jenis file
+const sanitizeHtml = require('sanitize-html'); // Untuk membersihkan HTML (penting!)
+const https = require('https'); // Untuk mengunduh dari URL
+const axios = require('axios'); //Untuk request ke URL
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
+app.use(express.static(__dirname)); // Melayani file statis (HTML, CSS, JS)
 
-// Variabel untuk menyimpan data (pertimbangkan database untuk produksi)
+//  Variabel untuk menyimpan data (pertimbangkan database untuk produksi)
 let backendCodeVariable = '// Kode backend default';
-let imageUrlsVariable = []; // Tidak digunakan dalam kode yang diberikan
 let templateContentVariable = '<p>Tidak ada template yang diunggah.</p>';
 
 // Fungsi untuk membuat nama file unik
@@ -45,21 +47,28 @@ const fileFilter = async (req, file, cb) => {
     }
 
     try {
-        const buffer = fs.readFileSync(file.path); // Baca file untuk deteksi magic number
+        // Baca file untuk deteksi magic number
+        const buffer = fs.readFileSync(file.path);
         const type = await fileType.fromBuffer(buffer);
 
         if (!type) {
+            // Hapus file yang tidak valid untuk mencegah penyimpanan file yang rusak
+            fs.unlinkSync(file.path);
             return cb(new Error('Jenis file tidak dikenali.'));
         }
 
         const allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'zip', 'txt', 'html', 'css', 'js']; // Daftar yang diizinkan
         if (!allowedTypes.includes(type.ext.toLowerCase())) {
+             // Hapus file yang tidak valid
+             fs.unlinkSync(file.path);
             return cb(new Error('Jenis file tidak diizinkan: ' + type.ext));
         }
 
         cb(null, true); // File diizinkan
     } catch (error) {
         console.error("Error checking file type:", error);
+        // Hapus file jika terjadi kesalahan dalam pemeriksaan
+        fs.unlinkSync(file.path);
         return cb(new Error('Gagal memverifikasi jenis file.'));
     }
 };
@@ -107,6 +116,84 @@ app.post('/upload', (req, res) => {
     });
 });
 
+//Rute Upload dari URL
+app.post('/upload-from-url', async (req, res) => {
+    const url = req.body.url;
+
+    if (!url) {
+        return res.status(400).json({ error: 'URL tidak boleh kosong.' });
+    }
+
+    try {
+        // Dapatkan nama file dari URL
+        const filename = path.basename(new URL(url).pathname);
+        const uniqueFilename = generateUniqueFilename(filename);
+        const filePath = path.join(__dirname, 'uploads', uniqueFilename);
+
+        // Validasi URL sebelum mengunduh
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            return res.status(400).json({ error: 'URL tidak valid. Harus dimulai dengan http:// atau https://' });
+        }
+
+        // Gunakan Axios untuk mengunduh file
+        const response = await axios({
+            method: 'GET',
+            url: url,
+            responseType: 'stream' // Penting untuk file besar
+        });
+
+        // Pastikan permintaan berhasil
+        if (response.status !== 200) {
+            return res.status(response.status).json({ error: `Gagal mengunduh file. Status: ${response.status}` });
+        }
+
+        // Tulis stream ke file
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
+
+        writer.on('finish', async () => {
+            console.log('File downloaded from URL:', uniqueFilename);
+
+             // Validasi jenis file setelah diunduh (PENTING untuk keamanan)
+             try {
+                const buffer = fs.readFileSync(filePath);
+                const type = await fileType.fromBuffer(buffer);
+
+                if (!type) {
+                    fs.unlinkSync(filePath); // Hapus file yang tidak valid
+                    return res.status(400).json({ error: 'Jenis file tidak dikenali setelah diunduh.' });
+                }
+
+                const allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'zip', 'txt', 'html', 'css', 'js']; // Daftar yang diizinkan
+                if (!allowedTypes.includes(type.ext.toLowerCase())) {
+                    fs.unlinkSync(filePath); // Hapus file yang tidak diizinkan
+                    return res.status(400).json({ error: 'Jenis file tidak diizinkan setelah diunduh: ' + type.ext });
+                }
+
+
+                res.json({ message: 'File berhasil diunduh dari URL: ' + uniqueFilename });
+
+            } catch (fileTypeError) {
+                 //Tangani error yang terkait dengan validasi `fileType`
+                 fs.unlinkSync(filePath);
+                 console.error("Error validating downloaded file type:", fileTypeError);
+                 return res.status(500).json({ error: 'Gagal memverifikasi jenis file setelah diunduh.' });
+             }
+
+        });
+
+        writer.on('error', (err) => {
+            fs.unlink(filePath, () => {}); // Bersihkan jika ada error
+            console.error("Error writing file:", err);
+            return res.status(500).json({ error: 'Terjadi kesalahan saat menyimpan file.' });
+        });
+
+    } catch (error) {
+        console.error("Error downloading from URL:", error);
+        return res.status(500).json({ error: 'Terjadi kesalahan saat mengunduh dari URL: ' + error.message });
+    }
+});
+
 // Rute Update Kode
 app.post('/update-code', (req, res) => {
     const code = req.body.code;
@@ -115,10 +202,19 @@ app.post('/update-code', (req, res) => {
     }
 
     // **PENTING: SANITISASI KODE DI SINI SEBELUM DISIMPAN**
-    // Contoh: gunakan library seperti DOMPurify untuk membersihkan HTML
-    // atau ESLint untuk memvalidasi JavaScript.
+    //  Gunakan library seperti DOMPurify untuk membersihkan HTML
+    //  atau ESLint untuk memvalidasi JavaScript.
+    const sanitizedCode = sanitizeHtml(code, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['style', 'script']),
+        allowedAttributes: {
+            '*': ['class', 'id', 'style'], // Izinkan semua atribut class, id, dan style
+            'a': ['href', 'target'],      // Izinkan atribut href dan target pada tag <a>
+            'img': ['src', 'alt']         // Izinkan atribut src dan alt pada tag <img>
+        },
+        allowedSchemes: ['http', 'https', 'data'] // Izinkan skema http, https, dan data (data untuk gambar base64)
+    });
 
-    backendCodeVariable = code;
+    backendCodeVariable = sanitizedCode;
     res.json({ message: 'Kode berhasil disimpan.' });
 });
 
@@ -142,7 +238,17 @@ app.post('/upload-template', (req, res) => {
                 return res.status(500).json({ error: 'Gagal membaca file template.' });
             }
 
-            templateContentVariable = data;
+            // Sanitisasi template HTML sebelum disimpan
+            templateContentVariable = sanitizeHtml(data, {
+                allowedTags: sanitizeHtml.defaults.allowedTags.concat(['style']),
+                allowedAttributes: {
+                    '*': ['class', 'id', 'style'],
+                    'a': ['href', 'target'],
+                    'img': ['src', 'alt']
+                },
+                allowedSchemes: ['http', 'https', 'data']
+            });
+
             res.json({ message: 'Template berhasil diupload dan konten disimpan.' });
         });
     });
@@ -152,7 +258,6 @@ app.post('/upload-template', (req, res) => {
 app.get('/data', (req, res) => {
     const data = {
         backendCode: backendCodeVariable,
-        imageUrls: imageUrlsVariable, // Meskipun tidak digunakan
         templateContent: templateContentVariable
     };
     res.json(data);
@@ -161,9 +266,28 @@ app.get('/data', (req, res) => {
 // Rute Reset Data
 app.post('/reset-data', (req, res) => {
     backendCodeVariable = '// Kode backend default';
-    imageUrlsVariable = [];
     templateContentVariable = '<p>Tidak ada template yang diunggah.</p>';
-    res.json({ message: 'Konten berhasil direset.' });
+
+     // Hapus semua file di folder uploads
+     const uploadDir = path.join(__dirname, 'uploads');
+     fs.readdir(uploadDir, (err, files) => {
+        if (err) {
+            console.error("Error reading uploads directory:", err);
+            return res.status(500).json({ error: 'Gagal membaca direktori uploads.' });
+        }
+
+        for (const file of files) {
+            const filePath = path.join(uploadDir, file);
+            fs.unlink(filePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error(`Gagal menghapus file ${file}: ${unlinkErr}`);
+                    //Tidak menghentikan reset jika gagal menghapus satu file
+                }
+            });
+        }
+
+        res.json({ message: 'Konten berhasil direset.' });
+    });
 });
 
 // Rute statis
