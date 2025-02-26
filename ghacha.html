@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gacha!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        button {
+            padding: 14px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        #gachaResult {
+            margin-top: 30px;
+            font-size: 20px;
+            color: #555;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        /* Sparkle Effect */
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container, h1, button, #gachaResult, a {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .container { animation-delay: 0.1s; }
+        h1 { animation-delay: 0.2s; }
+        button { animation-delay: 0.3s; }
+        #gachaResult { animation-delay: 0.4s; }
+        a { animation-delay: 0.5s; }
+
+        /* Media Query for Mobile Devices */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.75em;
+            }
+
+            button {
+                font-size: 16px;
+            }
+
+            #gachaResult {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gacha!</h1>
+        <button onclick="doGacha(this)">Putar Gacha!</button>
+        <div id="gachaResult"></div>
+        <p><a href="/">Kembali ke Halaman Utama</a></p>
+    </div>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script>
+        async function doGacha(button) {
+            const response = await fetch('/api/gacha');
+            const data = await response.json();
+            const resultText = "Anda mendapatkan: " + data.result;
+
+            document.getElementById('gachaResult').innerText = resultText;
+
+            // Sparkle effect
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            document.body.appendChild(sparkle);
+
+            const rect = button.getBoundingClientRect();
+            const x = rect.left + (rect.width / 2);
+            const y = rect.top + (rect.height / 2);
+
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+
+            // Animate using GSAP
+            gsap.to(sparkle, {
+                duration: 1,
+                scale: 2,
+                opacity: 0,
+                x: x + (Math.random() - 0.5) * 200, // Random spread
+                y: y + (Math.random() - 0.5) * 200,
+                onComplete: () => sparkle.remove()
+            });
+        }
+    </script>
+
+</body>
+</html>
