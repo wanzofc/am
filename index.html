@@ -2,7 +2,7 @@
 <html lang="id">
 
 <head>
-    <title>ONLY WANZOFC </title>
+    <title>ONLY WANZOFC - Obrolan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -388,13 +388,13 @@
 </button>
 
 <div class="container">
-    <h1 id="page-title" class="animate__animated animate__fadeInDown">welcome!</h1>
+    <h1 id="page-title" class="animate__animated animate__fadeInDown">Selamat Datang!</h1>
     <div class="battery-ip-container row row-cols-1 row-cols-md-2 g-4">
         <div class="col">
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-battery-half fa-2x card-icon"></i>
-                    <h5 class="card-title"></h5>
+                    <h5 class="card-title">Status Baterai</h5>
                     <p class="card-text">Level: <span id="battery-level">Memuat...</span></p>
                     <p class="card-text">Status: <span id="battery-status">Memuat...</span></p>
                 </div>
@@ -404,7 +404,7 @@
             <div class="card h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-network-wired fa-2x card-icon"></i>
-                    <h5 class="card-title"></h5>
+                    <h5 class="card-title">Alamat IP</h5>
                     <p class="card-text"><span id="ip-address">Memuat...</span></p>
                 </div>
             </div>
@@ -412,7 +412,10 @@
     </div>
     <h2>File yang Diunggah:</h2>
     <div id="file-list"><!-- FILES_HERE --></div>
-    
+    <h2>Tautan:</h2>
+    <div class="link-carousel-container">
+        
+    </div>
 </div>
 
 <button class="chat-widget-button" id="chat-widget-button" aria-label="Buka Obrolan">
@@ -421,15 +424,15 @@
 
 <div class="chat-widget" id="chat-widget" aria-hidden="true">
     <div class="chat-header">
-        <h3>wanz room</h3>
+        <h3>diskusi</h3>
         <button id="close-chat" aria-label="Tutup Obrolan"><i class="fas fa-times"></i></button>
     </div>
     <div class="chat-body">
-        <ul id="messages" class="list-unstyled"></ul>
+        <ul id="messages" class="list-unstyled"><!-- MESSAGES_HERE --></ul>
     </div>
     <div class="chat-input-area">
         <div id="reply-indicator" style="display: none;">
-            reply: <span id="reply-to-name"></span>
+            Membalas: <span id="reply-to-name"></span>
             <button type="button" id="cancel-reply" class="btn btn-sm btn-secondary">Batal</button>
         </div>
         <form id="chat-form" method="post" action="/api/messages">
@@ -506,8 +509,8 @@
             "shape": { "type": "circle", "stroke": { "width": 0, "color": "#000000" }, "polygon": { "nb_sides": 5 }, "image": { "src": "img/github.svg", "width": 100, "height": 100 } },
             "opacity": { "value": 0.5, "random": false, "anim": { "enable": false, "speed": 1, "opacity_min": 0.1, "sync": false } },
             "size": { "value": 5, "random": true, "anim": { "enable": false, "speed": 40, "size_min": 0.1, "sync": false } },
-            "line_linked": { "enable": true, "distance": 150, "color": "#00FFFF", "opacity": 0.4, "width": 4 },
-            "move": { "enable": true, "speed": 6, "direction": "none", "random": true, "straight": false, "out_mode": "out", "attract": { "enable": false, "rotateX": 600, "rotateY": 1200 } }
+            "line_linked": { "enable": true, "distance": 150, "color": "#00FFFF", "opacity": 0.4, "width": 1 },
+            "move": { "enable": true, "speed": 6, "direction": "none", "random": false, "straight": false, "out_mode": "out", "attract": { "enable": false, "rotateX": 600, "rotateY": 1200 } }
         },
         "interactivity": {
             "detect_on": "canvas",
