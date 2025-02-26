@@ -246,15 +246,15 @@
             border: 1px solid #555;
             border-radius: 4px;
         }
-
     </style>
 </head>
 <body>
 
     <div id="particles-js"></div>
-        <nav class="navbar">
+    <nav class="navbar">
         <button class="navbar-button" onclick="openEditorModal()">☰</button>
-        </nav>
+    </nav>
+
     <div class="content-wrapper">
         <section class="parallax">
             <img src="https://files.catbox.moe/2zv4kl.jpg" alt="Parallax Background">
@@ -279,13 +279,16 @@
             </div>
         </section>
     </div>
+
     <div id="editorModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button" onclick="closeEditorModal()">×</span>
-      <h2>code text</h2>
-      <textarea id="codeEditor"></textarea>
+        <div class="modal-content">
+            <span class="close-button" onclick="closeEditorModal()">×</span>
+            <h2>Backend Code</h2>
+            <textarea id="codeEditor"></textarea>
+            <button onclick="saveCode()">Simpan Kode</button>
+            <p id="codeSaveMessage"></p>
+        </div>
     </div>
-</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
@@ -405,7 +408,9 @@
             },
             "retina_detect": true
         });
+
         gsap.registerPlugin(ScrollTrigger);
+
         gsap.to(".parallax img", {
             yPercent: 100,
             ease: "none",
@@ -416,6 +421,7 @@
                 scrub: true
             }
         });
+
         function createCard(title, description, content, language) {
             const card = document.createElement('div');
             card.className = 'card';
@@ -438,6 +444,7 @@
             card.innerHTML = contentHTML;
             return card;
         }
+
         function copyCode(button) {
             const codeBlock = button.parentNode.querySelector('pre code');
             const code = codeBlock.textContent;
@@ -453,62 +460,94 @@
                     button.textContent = 'Error';
                 });
         }
+
         function downloadFile(filename, content) {
             const decodedContent = decodeURIComponent(content);
             const blob = new Blob([decodedContent], { type: "text/html;charset=utf-8" });
             saveAs(blob, filename + ".html");
         }
+
         function appendCards(containerId, cards) {
             const container = document.getElementById(containerId);
             cards.forEach(card => container.appendChild(card));
         }
-        fetch('/data')
-            .then(response => response.json())
-            .then(data => {
-                const fileCards = [
-                    createCard('Template File', 'HTML template content', data.templateContent, 'html')
-                ];
-
-                const codeCards = [
-                    createCard('Backend Code', 'Backend code snippet', data.backendCode, 'javascript')
-                ];
-
-                const languageCard = createCard('Languages used', '', `<ul><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>`, 'plain');
-
-                appendCards('file-container', fileCards);
-                appendCards('code-container', codeCards);
-                appendCards('language-container', [languageCard]);
-
-                gsap.fromTo('.card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: "power2.out", stagger: 0.2 });
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-                document.getElementById('file-container').innerHTML = `<p>Failed to load content.</p>`;
-                document.getElementById('code-container').innerHTML = `<p>Failed to load content.</p>`;
-                document.getElementById('language-container').innerHTML = `<p>Failed to load content.</p>`;
-            });
 
         let codeMirrorEditor;
 
         document.addEventListener('DOMContentLoaded', () => {
             codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
-                mode: "htmlmixed",
+                mode: "javascript", // Ubah ke javascript
                 theme: "material-darker",
                 lineNumbers: true,
                 autoCloseTags: true,
                 matchBrackets: true
             });
+
+            // Muat data awal saat halaman dimuat
+            loadData();
         });
+
+        function loadData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Perbarui CodeMirror dengan kode backend yang diambil
+                    codeMirrorEditor.setValue(data.backendCode);
+
+                    const fileCards = [
+                        createCard('Template File', 'HTML template content', data.templateContent, 'html')
+                    ];
+
+                    const codeCards = [
+                        createCard('Backend Code', 'Backend code snippet', data.backendCode, 'javascript')
+                    ];
+
+                    const languageCard = createCard('Languages used', '', `<ul><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>`, 'plain');
+
+                    appendCards('file-container', fileCards);
+                    appendCards('code-container', codeCards);
+                    appendCards('language-container', [languageCard]);
+
+                    gsap.fromTo('.card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: "power2.out", stagger: 0.2 });
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    document.getElementById('file-container').innerHTML = `<p>Failed to load content.</p>`;
+                    document.getElementById('code-container').innerHTML = `<p>Failed to load content.</p>`;
+                    document.getElementById('language-container').innerHTML = `<p>Failed to load content.</p>`;
+                });
+        }
 
         function openEditorModal() {
             document.getElementById('editorModal').style.display = 'block';
-            codeMirrorEditor.refresh();
+            codeMirrorEditor.refresh(); // Penting untuk CodeMirror
         }
 
         function closeEditorModal() {
             document.getElementById('editorModal').style.display = 'none';
         }
 
+        function saveCode() {
+            const code = codeMirrorEditor.getValue();
+            fetch('/update-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('codeSaveMessage').textContent = data.message;
+                // Muat ulang data setelah menyimpan kode
+                loadData();
+                closeEditorModal(); // Tutup modal setelah menyimpan
+            })
+            .catch(error => {
+                console.error("Error saving code:", error);
+                document.getElementById('codeSaveMessage').textContent = 'Failed to save code.';
+            });
+        }
     </script>
 </body>
 </html>
