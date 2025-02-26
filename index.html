@@ -4,29 +4,109 @@
     <title>Halaman Utama</title>
     <style>
       body {
-        font-family: sans-serif;
-        margin: 20px;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333;
+        line-height: 1.6;
       }
+
+      .container {
+        width: 80%;
+        margin: auto;
+        overflow: hidden;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #007bff;
+        margin-bottom: 30px;
+        animation: fadeInDown 1s ease-out;
+      }
+
+      h2 {
+        color: #007bff;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+        margin-top: 30px;
+      }
+
+      #file-list, #link-list {
+        margin-bottom: 30px;
+      }
+
+      .file-item {
+        display: flex;
+        justify-content: space-between; /* Distribute space between items */
+        align-items: center; /* Align items vertically */
+        padding: 10px;
+        background-color: #fff;
+        border-bottom: 1px solid #eee;
+      }
+
+      .file-item:last-child {
+        border-bottom: none;
+      }
+
       a {
-        color: blue;
+        color: #007bff;
         text-decoration: none;
+        transition: color 0.3s ease;
       }
+
       a:hover {
+        color: #0056b3;
         text-decoration: underline;
       }
+
+      .download-button {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+      }
+
+      .download-button:hover {
+        background-color: #218838;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
 </head>
 <body>
-    <h1>Selamat Datang!</h1>
+    <div class="container">
+        <h1 id="page-title">Selamat Datang!</h1>
 
-    <h2>File yang Diunggah:</h2>
-    <div id="file-list">
-        <!-- FILES_HERE -->
+        <h2>File yang Diunggah:</h2>
+        <div id="file-list">
+            <!-- FILES_HERE -->
+        </div>
+
+        <h2>Tautan:</h2>
+        <div id="link-list">
+            <!-- LINKS_HERE -->
+        </div>
     </div>
 
-    <h2>Tautan:</h2>
-    <div id="link-list">
-        <!-- LINKS_HERE -->
-    </div>
+    <script>
+        // GSAP Animation
+        gsap.fromTo("#page-title", {opacity: 0, y: -50}, {opacity: 1, y: 0, duration: 1});
+    </script>
 </body>
 </html>
