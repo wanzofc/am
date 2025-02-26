@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ONLY WANZOFC</title>
+    <title>Halaman Utama</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
           integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
@@ -47,8 +47,8 @@
 
       .file-item {
         display: flex;
-        justify-content: space-between; 
-        align-items: center; 
+        justify-content: space-between; /* Distribute space between items */
+        align-items: center; /* Align items vertically */
         padding: 10px;
         background-color: #fff;
         border-bottom: 1px solid #eee;
@@ -120,20 +120,12 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         text-align: center;
-        margin: 10px; 
-        box-sizing: border-box; 
       }
 
       .card i {
         font-size: 2em;
         margin-bottom: 10px;
         color: #007bff;
-          }
-      .dynamic-card-container {
-        display: flex;
-        flex-wrap: wrap; 
-        justify-content: flex-start; 
-        margin-top: 20px;
       }
 
       @keyframes fadeInDown {
@@ -152,12 +144,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
     <script>
+        // GSAP Animation
         gsap.fromTo("#page-title", {opacity: 0, y: -50}, {opacity: 1, y: 0, duration: 1});
 
         function tryLink(link) {
-            window.open(link, '_blank'); 
+            window.open(link, '_blank'); // Membuka tautan di tab baru
         }
+
+        // Fungsi untuk mendapatkan informasi baterai
         function getBatteryStatus() {
             if ('getBattery' in navigator) {
                 navigator.getBattery().then(function (battery) {
@@ -171,9 +167,13 @@
                 document.getElementById('battery-status').textContent = 'Tidak didukung';
             }
         }
+
+        // Panggil fungsi getBatteryStatus saat halaman dimuat
         window.onload = function () {
             getBatteryStatus();
         };
+
+        // Fungsi untuk mendapatkan IP address menggunakan API pihak ketiga
         function getIPAddress() {
             fetch('https://api.ipify.org?format=json')
                 .then(response => response.json())
@@ -185,68 +185,40 @@
                     document.getElementById('ip-address').textContent = 'Gagal mendapatkan IP';
                 });
         }
+
+        // Panggil fungsi getIPAddress saat halaman dimuat
         window.onload = function () {
             getBatteryStatus();
             getIPAddress();
-            createDynamicCards();
         };
-        function createFileCard(file) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <i class="fas fa-file"></i>
-                <h3>File: ${file}</h3>
-                <a href="/download/${file}" class="download-button">Unduh</a>
-            `;
-            return card;
-        }
-        function createLinkCard(link) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <i class="fas fa-link"></i>
-                <h3>Link:</h3>
-                <a href="${link}" target="_blank">${link}</a>
-                <button class="try-button" onclick="tryLink('${link}')">Coba</button>
-            `;
-            return card;
-        }
-        function createDynamicCards() {
-            const dynamicCardContainer = document.getElementById('dynamic-card-container');
-            if (window.fileLinksData && window.fileLinksData.files) {
-                window.fileLinksData.files.forEach(file => {
-                    const fileCard = createFileCard(file);
-                    dynamicCardContainer.appendChild(fileCard);
-                });
-        }
-            if (window.fileLinksData && window.fileLinksData.links) {
-                window.fileLinksData.links.forEach(link => {
-                    const linkCard = createLinkCard(link);
-                    dynamicCardContainer.appendChild(linkCard);
-                });
-            }
-        }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1 id="page-title">selamat datang!</h1>
+        <h1 id="page-title">Selamat Datang!</h1>
 
         <div class="battery-ip-container">
             <div class="card">
                 <i class="fas fa-battery-half"></i>
-                <h3></h3>
+                <h3>Status Baterai</h3>
                 <p>Level: <span id="battery-level">Memuat...</span></p>
                 <p>Status: <span id="battery-status">Memuat...</span></p>
             </div>
             <div class="card">
                 <i class="fas fa-network-wired"></i>
-                <h3>IP</h3>
+                <h3>Alamat IP</h3>
                 <p><span id="ip-address">Memuat...</span></p>
             </div>
         </div>
-        <h2>File dan Tautan:</h2>
-        <div id="dynamic-card-container" class="dynamic-card-container">
+
+        <h2>File yang Diunggah:</h2>
+        <div id="file-list">
+            <!-- FILES_HERE -->
+        </div>
+
+        <h2>Tautan:</h2>
+        <div id="link-list">
+            <!-- LINKS_HERE -->
         </div>
     </div>
 </body>
