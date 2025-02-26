@@ -1,55 +1,286 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Halaman Admin</title>
+    <title> Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-      body {
-        font-family: sans-serif;
-        margin: 20px;
-      }
-      form {
-        margin-bottom: 20px;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-      }
-      input[type="text"],
-      input[type="file"],
-      button {
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      button {
-        cursor: pointer;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-      }
-      button:hover {
-        background-color: #3e8e41;
-      }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        button {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 22px);
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .request-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            word-break: break-word; /* Prevents long text from breaking the layout */
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background-color: #e9ecef;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        /* Add some basic animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container, h1, h2, form, .request-item {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .container { animation-delay: 0.1s; }
+        h1 { animation-delay: 0.2s; }
+        h2 { animation-delay: 0.3s; }
+        form { animation-delay: 0.4s; }
+        .request-item { animation-delay: 0.5s; }
+
+        /* Media Query for Mobile Devices */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1, h2 {
+                font-size: 1.5em;
+            }
+
+            input[type="text"],
+            input[type="file"],
+            button {
+                font-size: 14px;
+            }
+
+            .request-item {
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Halaman Admin</h1>
 
-    <h2>Unggah File</h2>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="file">Pilih File:</label>
-        <input type="file" name="file" id="file"><br>
-        <button type="submit">Unggah</button>
-    </form>
+    <div id="particles-js"></div>
 
-    <h2>Tambahkan Tautan</h2>
-    <form action="/addLink" method="POST">
-        <label for="link">Tautan:</label>
-        <input type="text" name="link" id="link"><br>
-        <button type="submit">Tambahkan</button>
-    </form>
+    <div class="container">
+        <h1>Halaman Admin</h1>
 
-    <p><a href="/">Kembali ke Halaman Utama</a></p>
+        <h2>Unggah File</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <label for="file">Pilih File:</label>
+            <input type="file" name="file" id="file"><br>
+            <button type="submit">Unggah</button>
+        </form>
+
+        <h2>Tambahkan Tautan</h2>
+        <form action="/addLink" method="POST">
+            <label for="link">Tautan:</label>
+            <input type="text" name="link" id="link"><br>
+            <button type="submit">Tambahkan</button>
+        </form>
+
+        <h2>Daftar Permintaan</h2>
+        <div id="requests-list">
+            <!-- REQUESTS_HERE -->
+        </div>
+
+        <p><a href="/">Kembali ke Halaman Utama</a></p>
+    </div>
+
+    <!-- Load Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#007bff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    },
+                    "image": {
+                        "src": "img/github.svg",
+                        "width": 100,
+                        "height": 100
+                    }
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 5,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#007bff",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 6,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true,
+            "config_demo": {
+                "hide_card": false,
+                "background_color": "#b61924",
+                "background_image": "",
+                "background_position": "50% 50%",
+                "background_repeat": "no-repeat",
+                "particle_size": 5
+            }
+        });
+    </script>
+
 </body>
-</html>
+    </html>
