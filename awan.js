@@ -2,10 +2,38 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const mime = require('mime-types'); // Tambahkan library mime-types
+const mime = require('mime-types');
+const mongoose = require('mongoose');
 
 const app = express();
 const port = 3000;
+
+// ** Koneksi ke Database (Mongoose) **
+const connectDB = async () => {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/chatdb', {  // Ganti dengan koneksi MongoDB Anda
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+        console.log('MongoDB Connected...');
+    } catch (err) {
+        console.error(err.message);
+        // Exit process with failure
+        process.exit(1);
+    }
+};
+
+connectDB();  // Connect to MongoDB
+
+// ** Model Pesan (Mongoose) **
+const MessageSchema = new mongoose.Schema({
+    sender: { type: String, required: true },
+    content: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    replyTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Message', default: null },
+});
+
+const Message = mongoose.model('Message', MessageSchema);
 
 // Konfigurasi Multer untuk upload file
 const storage = multer.diskStorage({
@@ -20,7 +48,6 @@ const upload = multer({ storage: storage });
 
 // Middleware untuk parse body permintaan (untuk form data)
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public'
 
 // Buat folder 'uploads' jika belum ada
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -28,7 +55,7 @@ if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
 }
 
-// Data untuk disimpan dan ditampilkan di index.html
+// Data untuk disimpan
 let data = {
     files: [],
     links: []
@@ -53,33 +80,45 @@ function saveData() {
 loadData();
 
 // Rute untuk halaman utama (index.html)
-app.get('/', (req, res) => {
-    fs.readFile('index.html', 'utf8', (err, html) => {
-        if (err) {
-            res.status(500).send('Error loading index.html');
-            return;
-        }
+app.get('/', async (req, res) => {
+    try {
+        const html = fs.readFileSync('index.html', 'utf8'); // Baca file HTML
+        const messages = await Message.find().populate('replyTo'); // Ambil data pesan dari database
+
+        // Generate tampilan daftar file
+        let fileList = data.files.map(file => `
+            <div class="file-item">
+                <a href="/uploads/${file}">${file}</a>
+                <a href="/download/${file}" class="download-button">Unduh</a>
+            </div>
+        `).join('');
+
+        // Generate tampilan daftar tautan
+        let linkList = data.links.map(link => `
+            <div class="link-item">
+                <a href="${link}" target="_blank">${link}</a>
+                <button class="try-button" onclick="tryLink('${link}')">Coba</button>
+            </div>
+        `).join('');
+
+        // Generate tampilan daftar pesan
+        let messageList = messages.map(msg => `
+            <li class="message">
+                <span class="sender">${msg.sender}</span>: ${msg.content}
+            </li>
+        `).join('');
 
         // Gabungkan data ke dalam HTML
-        let fileList = '';
-        data.files.forEach(file => {
-            fileList += `<div class="file-item">
-                            <a href="/uploads/${file}">${file}</a>
-                            <a href="/download/${file}" class="download-button">Unduh</a>
-                         </div>`;
-        });
+        const modifiedHtml = html
+            .replace('<!-- FILES_HERE -->', fileList)
+            .replace('<!-- LINKS_HERE -->', linkList)
+            .replace('<!-- MESSAGES_HERE -->', messageList);
 
-        let linkList = '';
-        data.links.forEach(link => {
-            linkList += `<div class="link-item">
-                            <a href="${link}" target="_blank">${link}">${link}</a>
-                            <button class="try-button" onclick="tryLink('${link}')">Coba</button>
-                         </div>`;
-        });
-
-        const modifiedHtml = html.replace('<!-- FILES_HERE -->', fileList).replace('<!-- LINKS_HERE -->', linkList);
         res.send(modifiedHtml);
-    });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Terjadi kesalahan saat memproses permintaan.');
+    }
 });
 
 // Rute untuk halaman admin (admin.html)
@@ -115,6 +154,22 @@ app.post('/addLink', (req, res) => {
     res.redirect('/admin'); // Redirect kembali ke halaman admin
 });
 
+// Rute untuk menangani pengiriman pesan
+app.post('/api/messages', async (req, res) => {
+    try {
+        const message = new Message({
+            sender: req.body.sender,
+            content: req.body.content,
+            replyTo: req.body.replyTo || null,
+        });
+        await message.save();
+        res.redirect('/'); // Redirect kembali ke halaman utama untuk menampilkan pesan baru
+    } catch (error) {
+        console.error("Gagal menyimpan pesan:", error);
+        res.status(500).send('Gagal mengirim pesan.');
+    }
+});
+
 // Rute untuk menangani unduhan file (penting!)
 app.get('/download/:filename', (req, res) => {
     const filename = req.params.filename;
@@ -132,6 +187,9 @@ app.get('/download/:filename', (req, res) => {
     // Kirim file sebagai respons
     res.sendFile(filepath);
 });
+
+// Serve files in /uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
