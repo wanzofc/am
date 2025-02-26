@@ -1,25 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>ONLY WANZOFC</title>
+    <title>ONLY WANZOFC - Obrolan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
 
-    <!-- UI Frameworks -->
+    <!-- CSS Libraries (CDN) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-
-    <!-- Font & Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
-
-
-    <!-- Animation & Effects -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
 
+    <!--  Inline CSS -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -68,11 +63,48 @@
             border-bottom-color: #bb86fc;
         }
 
-        #file-list, #link-list {
+        #file-list {
             margin-bottom: 30px;
         }
 
-        .file-item {
+        /* Gaya untuk carousel tautan */
+        .link-carousel-container {
+            overflow: hidden;
+            margin-bottom: 30px; /* Tambahkan margin bawah */
+        }
+
+        .link-carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            padding-bottom: 10px; /* Beri ruang untuk indikator */
+            cursor: grab; /* Ikon tangan saat di-hover */
+        }
+
+        .link-carousel a {
+            display: block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            white-space: nowrap; /* Mencegah teks pecah */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .link-carousel a:hover {
+            background-color: #ddd;
+        }
+
+        .link-carousel.active {
+            cursor: grabbing;
+        }
+
+        .link-carousel.active a {
+            pointer-events: none; /* Mencegah tautan diklik saat menyeret */
+        }
+
+        #file-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -82,13 +114,13 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
-        body.dark-mode .file-item {
+        body.dark-mode #file-item {
             background-color: #444;
             border-bottom-color: #555;
             color: #eee;
         }
 
-        .file-item:last-child {
+        #file-item:last-child {
             border-bottom: none;
         }
 
@@ -120,22 +152,6 @@
 
         .download-button:hover {
             background-color: #218838;
-        }
-
-        .link-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #fff;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        body.dark-mode .link-item {
-            background-color: #444;
-            border-bottom-color: #555;
-            color: #eee;
         }
 
         .try-button {
@@ -203,70 +219,285 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Letakkan di belakang konten */
-            pointer-events: none; /* Biarkan klik menembus partikel */
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Gaya untuk widget obrolan */
+        .chat-widget-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+            z-index: 1000; /* Pastikan di atas elemen lain */
+        }
+
+        .chat-widget-button:hover {
+            background-color: #0056b3;
+        }
+
+       /* Gaya untuk widget obrolan */
+        .chat-widget {
+            position: fixed;
+            bottom: 80px; /* Posisi di atas tombol */
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            /* tambahkan ini */
+            display: none;
+            z-index: 1000;
+            flex-direction: column;
+            display: flex; /* Aktifkan Flexbox */
+            transition: all 0.3s ease-in-out;
+            transform: scale(0);
+            opacity: 0;
+            visibility: hidden;
+            transform-origin: bottom right;
+        }
+
+        .chat-widget.active {
+            display: flex;
+            transform: scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chat-header {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .chat-header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        .chat-body {
+            padding: 10px;
+            overflow-y: auto; /* Tambahkan scroll jika konten terlalu panjang */
+            flex-grow: 1; /* Biarkan body mengambil sisa ruang vertikal */
+            display: flex; /* Gunakan Flexbox untuk menata pesan */
+            flex-direction: column; /* Susun pesan dari atas ke bawah */
+        }
+
+        .chat-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-body li {
+            margin-bottom: 5px;
+        }
+
+        .chat-input-area {
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        /* Message Styling */
+        .message {
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+
+        .message.me {
+            background-color: #DCF8C6; /* WhatsApp-like */
+            align-self: flex-end;
+        }
+
+        .message.other {
+            background-color: #FFF;
+            align-self: flex-start;
+        }
+
+        .message .sender {
+            font-size: 0.8em;
+            color: #777;
+        }
+
+        .message .content {
+            margin-top: 5px;
+        }
+
+        /* Reply Styling */
+        .reply-section {
+            margin-bottom: 10px;
+        }
+
+        .reply-message {
+            background-color: #E0E0E0;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .reply-message .sender {
+            font-weight: bold;
+        }
+
+        .reply-indicator {
+            font-style: italic;
+            font-size: 0.8em;
+            color: #555;
+        }
+
+        /* General Styling */
+        #messages {
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 50px; /* Adjust for form height */
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .battery-ip-container {
+                flex-direction: column;
+            }
+
+            .card {
+                width: 100%;
+                margin-bottom: 15px;
+            }
         }
     </style>
 
 </head>
 <body>
 
-    <button id="theme-toggle" style="position: fixed; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.5em;">
+    <button id="theme-toggle" style="position: fixed; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.5em;" aria-label="Ubah tema">
         ☀️
     </button>
 
     <div class="container">
-        <h1 id="page-title">Selamat Datang!</h1>
+        <h1 id="page-title" class="animate__animated animate__fadeInDown">Selamat Datang!</h1>
 
-        <div class="battery-ip-container">
-            <div class="card">
-                <i class="fas fa-battery-half"></i>
-                <h3>Status Baterai</h3>
-                <p>Level: <span id="battery-level">Memuat...</span></p>
-                <p>Status: <span id="battery-status">Memuat...</span></p>
+        <div class="battery-ip-container row row-cols-1 row-cols-md-2 g-4">
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-battery-half fa-2x card-icon"></i>
+                        <h5 class="card-title">Status Baterai</h5>
+                        <p class="card-text">Level: <span id="battery-level">Memuat...</span></p>
+                        <p class="card-text">Status: <span id="battery-status">Memuat...</span></p>
+                    </div>
+                </div>
             </div>
-            <div class="card">
-                <i class="fas fa-network-wired"></i>
-                <h3>Alamat IP</h3>
-                <p><span id="ip-address">Memuat...</span></p>
+
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-network-wired fa-2x card-icon"></i>
+                        <h5 class="card-title">Alamat IP</h5>
+                        <p class="card-text"><span id="ip-address">Memuat...</span></p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <h2>File yang Diunggah:</h2>
         <div id="file-list">
-            <!-- FILES_HERE -->
+            <!-- File list akan diisi oleh JavaScript -->
         </div>
 
         <h2>Tautan:</h2>
-        <div id="link-list">
-            <!-- LINKS_HERE -->
+        <div class="link-carousel-container">
+            <div class="link-carousel" id="linkCarousel" aria-label="Tautan Penting">
+                <a href="#" class="link-item">Tautan 1</a>
+                <a href="#" class="link-item">Tautan 2</a>
+                <a href="#" class="link-item">Tautan 3</a>
+                <a href="#" class="link-item">Tautan 4</a>
+                <a href="#" class="link-item">Tautan 5</a>
+                <a href="#" class="link-item">Tautan 6</a>
+                <a href="#" class="link-item">Tautan 7</a>
+                <a href="#" class="link-item">Tautan 8</a>
+            </div>
         </div>
     </div>
 
-    <div id="particles-js"></div> <!-- Container untuk partikel -->
+    <!-- Tombol Widget Chat -->
+    <button class="chat-widget-button" id="chat-widget-button" aria-label="Buka Obrolan">
+        <i class="fas fa-comment"></i>
+    </button>
 
+    <!-- Widget Chat -->
+    <div class="chat-widget" id="chat-widget" aria-hidden="true">
+        <div class="chat-header">
+            <h3>Obrolan Langsung</h3>
+            <button id="close-chat" aria-label="Tutup Obrolan"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-body">
+            <ul id="messages" class="list-unstyled"></ul>
+        </div>
+        <div class="chat-input-area">
+            <div id="reply-indicator" style="display: none;">
+                Membalas: <span id="reply-to-name"></span>
+                <button type="button" id="cancel-reply" class="btn btn-sm btn-secondary">Batal</button>
+            </div>
+            <form id="chat-form">
+                <div class="input-group">
+                    <input type="text" id="message-input" class="form-control" placeholder="Ketik pesan..."
+                           aria-label="Ketik pesan" aria-describedby="send-button" autocomplete="off">
+                    <button class="btn btn-primary" type="submit" id="send-button">
+                        <i class="fas fa-paper-plane"></i> Kirim
+                    </button>
+                </div>
+                <input type="hidden" id="reply-to-input" value="">
+            </form>
+        </div>
+    </div>
+
+    <div id="particles-js"></div>
+
+    <!-- JavaScript Libraries (CDN) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script> <!-- Partikel JS -->
-
-    <!-- JavaScript Utilities -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 
+    <!-- Inline JavaScript -->
     <script>
         // GSAP Animation
         gsap.fromTo("#page-title", {opacity: 0, y: -50}, {opacity: 1, y: 0, duration: 1});
-
-        function tryLink(link) {
-            window.open(link, '_blank'); // Membuka tautan di tab baru
-        }
 
         // Fungsi untuk mendapatkan informasi baterai
         function getBatteryStatus() {
@@ -283,11 +514,6 @@
             }
         }
 
-        // Panggil fungsi getBatteryStatus saat halaman dimuat
-        window.onload = function () {
-            getBatteryStatus();
-        };
-
         // Fungsi untuk mendapatkan IP address menggunakan API pihak ketiga
         function getIPAddress() {
             fetch('https://api.ipify.org?format=json')
@@ -301,7 +527,7 @@
                 });
         }
 
-        // Panggil fungsi getIPAddress saat halaman dimuat
+        // Panggil fungsi getBatteryStatus dan getIPAddress saat halaman dimuat
         window.onload = function () {
             getBatteryStatus();
             getIPAddress();
@@ -348,7 +574,7 @@
                     "value": 0.5,
                     "random": false,
                     "anim": {
-                        "enable": true,
+                        "enable": false,
                         "speed": 1,
                         "opacity_min": 0.1,
                         "sync": false
@@ -358,10 +584,10 @@
                     "value": 5,
                     "random": true,
                     "anim": {
-                        "enable": true,
+                        "enable": false,
                         "speed": 40,
                         "size_min": 0.1,
-                        "sync": true
+                        "sync": false
                     }
                 },
                 "line_linked": {
@@ -369,13 +595,13 @@
                     "distance": 150,
                     "color": "#00FFFF", // Warna cyan
                     "opacity": 0.4,
-                    "width": 3
+                    "width": 1
                 },
                 "move": {
                     "enable": true,
                     "speed": 6,
                     "direction": "none",
-                    "random": true,
+                    "random": false,
                     "straight": false,
                     "out_mode": "out",
                     "attract": {
@@ -432,6 +658,57 @@
                 "background_repeat": "no-repeat",
                 "background_size": "cover"
             }
+        });
+
+        // Obrolan Widget
+        const chatWidgetButton = document.getElementById('chat-widget-button');
+        const chatWidget = document.getElementById('chat-widget');
+        const closeChatButton = document.getElementById('close-chat');
+        const messages = document.getElementById('messages');
+        const chatForm = document.getElementById('chat-form');
+        const messageInput = document.getElementById('message-input');
+        const replyToInput = document.getElementById('reply-to-input');
+        const replyIndicator = document.getElementById('reply-indicator');
+        const replyToName = document.getElementById('reply-to-name');
+        const cancelReplyButton = document.getElementById('cancel-reply');
+
+        let socket;
+        let currentReplyTo = null;
+
+        chatWidgetButton.addEventListener('click', () => {
+            chatWidget.classList.toggle('active');
+        });
+
+        closeChatButton.addEventListener('click', () => {
+            chatWidget.classList.remove('active');
+        });
+
+        // Inisialisasi carousel
+        const carousel = document.getElementById('linkCarousel');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        carousel.addEventListener('mousedown', (e) => {
+            isDown = true;
+            carousel.classList.add('active');
+            startX = e.pageX - carousel.offsetLeft;
+            scrollLeft = carousel.scrollLeft;
+        });
+        carousel.addEventListener('mouseleave', () => {
+            isDown = false;
+            carousel.classList.remove('active');
+        });
+        carousel.addEventListener('mouseup', () => {
+            isDown = false;
+            carousel.classList.remove('active');
+        });
+        carousel.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startX) * 3; //scroll-fast
+            carousel.scrollLeft = scrollLeft - walk;
         });
     </script>
 </body>
