@@ -2,39 +2,35 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const mime = require('mime-types'); // Tambahkan library mime-types
+const mime = require('mime-types');
 
 const app = express();
 const port = 3000;
 
-// Konfigurasi Multer untuk upload file
+// Konfigurasi Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Simpan file di folder 'uploads'
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname); // Gunakan nama file asli
+        cb(null, file.originalname);
     }
 });
-const upload = multer({ storage: storage });
+const upload = multer({storage: storage});
 
-// Middleware untuk parse body permintaan (untuk form data)
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public'
+app.use(express.urlencoded({extended: true}));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Buat folder 'uploads' jika belum ada
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir);
 }
 
-// Data untuk disimpan dan ditampilkan di index.html
 let data = {
     files: [],
     links: []
 };
 
-// Fungsi untuk membaca data dari file (misalnya data.json)
 function loadData() {
     try {
         const rawData = fs.readFileSync('data.json');
@@ -44,42 +40,28 @@ function loadData() {
     }
 }
 
-// Fungsi untuk menyimpan data ke file (misalnya data.json)
 function saveData() {
     fs.writeFileSync('data.json', JSON.stringify(data));
 }
 
-// Load data saat server dimulai
 loadData();
 
-// Rute untuk halaman utama (index.html)
 app.get('/', (req, res) => {
     fs.readFile('index.html', 'utf8', (err, html) => {
         if (err) {
             res.status(500).send('Error loading index.html');
             return;
         }
-
-        // Gabungkan data ke dalam HTML
-        let fileList = '';
-        data.files.forEach(file => {
-            fileList += `<div class="file-item">
-                            <a href="/uploads/${file}">${file}</a>
-                            <a href="/download/${file}" class="download-button">Unduh</a>
-                         </div>`;
-        });
-
-        let linkList = '';
-        data.links.forEach(link => {
-            linkList += `<p><a href="${link}" target="_blank">${link}</a></p>`;
-        });
-
-        const modifiedHtml = html.replace('<!-- FILES_HERE -->', fileList).replace('<!-- LINKS_HERE -->', linkList);
+        // Kirim data sebagai JSON agar dapat diakses dari JavaScript
+        const modifiedHtml = html.replace('/* DATA_FILES_LINKS */', `
+            <script>
+                window.fileLinksData = ${JSON.stringify(data)};
+            </script>
+        `);
         res.send(modifiedHtml);
     });
 });
 
-// Rute untuk halaman admin (admin.html)
 app.get('/admin', (req, res) => {
     fs.readFile('admin.html', 'utf8', (err, html) => {
         if (err) {
@@ -90,43 +72,31 @@ app.get('/admin', (req, res) => {
     });
 });
 
-// Rute untuk menangani upload file
 app.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).send('Tidak ada file yang diunggah.');
     }
 
     data.files.push(req.file.originalname);
-    saveData(); // Simpan perubahan data
-
-    res.redirect('/admin'); // Redirect kembali ke halaman admin
+    saveData();
+    res.redirect('/admin');
 });
 
-// Rute untuk menangani penambahan link
 app.post('/addLink', (req, res) => {
     const link = req.body.link;
     if (link) {
         data.links.push(link);
-        saveData(); // Simpan perubahan data
+        saveData();
     }
-    res.redirect('/admin'); // Redirect kembali ke halaman admin
+    res.redirect('/admin');
 });
 
-// Rute untuk menangani unduhan file (penting!)
 app.get('/download/:filename', (req, res) => {
     const filename = req.params.filename;
     const filepath = path.join(__dirname, 'uploads', filename);
-
-    // Tentukan tipe konten (MIME type) berdasarkan ekstensi file
-    const contentType = mime.lookup(filename) || 'application/octet-stream'; // Fallback ke binary jika tidak dikenali
-
-    // Set header 'Content-Type'
+    const contentType = mime.lookup(filename) || 'application/octet-stream';
     res.setHeader('Content-Type', contentType);
-
-    // Set header 'Content-Disposition' untuk memberitahu browser untuk mengunduh file
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-    // Kirim file sebagai respons
     res.sendFile(filepath);
 });
 
