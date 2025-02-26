@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MAU REQUEST APA?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box; /* Make sure padding and border don't add to the element's width */
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 2em; /* Responsive font size */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        textarea {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 14px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        /* VanillaTilt Styles */
+        .vanilla-tilt {
+            background: linear-gradient(to right, #f0f0f0, #e0e0e0);
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .vanilla-tilt:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container, h1, label, textarea, button, a {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .container { animation-delay: 0.1s; }
+        h1 { animation-delay: 0.2s; }
+        label { animation-delay: 0.3s; }
+        textarea { animation-delay: 0.4s; }
+        button { animation-delay: 0.5s; }
+        a { animation-delay: 0.6s; }
+
+        /* Media Query for Mobile Devices */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.75em;
+            }
+
+            textarea {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container vanilla-tilt" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-scale="1.1">
+        <h1>Kirim Permintaan</h1>
+        <form action="/api/requests" method="POST">
+            <label for="requestText">Permintaan Anda:</label><br>
+            <textarea id="requestText" name="requestText" rows="6" placeholder="MASUAKN PESAN YANG INGIN ANDA REQUEST"></textarea><br>
+            <button type="submit">Kirim Permintaan</button>
+        </form>
+        <p><a href="/">Kembali ke Halaman Utama</a></p>
+    </div>
+
+    <!-- VanillaTilt -->
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.0/dist/vanilla-tilt.min.js"></script>
+    <script>
+        VanillaTilt.init(document.querySelectorAll(".vanilla-tilt"));
+    </script>
+
+</body>
+</html>
