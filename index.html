@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEMPLATE WANZOFC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #eee;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+            transform-style: preserve-3d;
+        }
+
+        section {
+            padding: 80px 0;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 50px;
+            color: cyan;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 60px;
+            padding: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            background-color: rgba(34, 34, 34, 0.8);
+            border-radius: 10px;
+        }
+
+        .card {
+            background-color: #222;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 20px;
+            padding: 20px;
+            width: calc(33% - 40px);
+            min-width: 250px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: left;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h2 {
+            color: cyan;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .card p {
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            display: block;
+        }
+        .parallax {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+        }
+
+        .parallax img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        .parallax::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to top, #121212, transparent);
+            z-index: -1;
+        }
+        @media (max-width: 768px) {
+            .card {
+                width: calc(50% - 40px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: calc(100% - 40px);
+            }
+        }
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background-color: #3e8e41;
+        }
+        .download-button {
+            display: block;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(20, 20, 20, 0.9);
+            padding: 10px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-button {
+            background: none;
+            border: none;
+            color: #eee;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+        .navbar-button:hover {
+            color: cyan;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 101;
+            overflow: auto;
+        }
+        .modal-content {
+            position: relative;
+            background-color: #333;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #bbb;
+            font-size: 2em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close-button:hover {
+            color: #eee;
+        }
+        #codeEditor {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+        <nav class="navbar">
+        <button class="navbar-button" onclick="openEditorModal()">☰</button>
+        </nav>
+    <div class="content-wrapper">
+        <section class="parallax">
+            <img src="https://files.catbox.moe/2zv4kl.jpg" alt="Parallax Background">
+            <h1>TEMPLATE WANZOFC</h1>
+        </section>
+
+        <section>
+            <div class="container" id="file-container">
+                <h2>Files</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="container" id="code-container">
+                <h2>code</h2>
+            </div>
+        </section>
+
+        <section>
+            <div class="container" id="language-container">
+                <h2>languages</h2>
+            </div>
+        </section>
+    </div>
+    <div id="editorModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeEditorModal()">×</span>
+      <h2>code text</h2>
+      <textarea id="codeEditor"></textarea>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+
+    <script>
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#00FFFF"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    },
+                    "image": {
+                        "src": "img/github.svg",
+                        "width": 100,
+                        "height": 100
+                    }
+                },
+                "opacity": {
+                    "value": 0.7,
+                    "random": true,
+                    "anim": {
+                        "enable": true,
+                        "speed": 1,
+                        "opacity_min": 0.3,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#00FFFF",
+                    "opacity": 0.5,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 4,
+                    "direction": "none",
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.to(".parallax img", {
+            yPercent: 100,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".parallax",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true
+            }
+        });
+        function createCard(title, description, content, language) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            let contentHTML = '';
+            if (language === 'html') {
+                contentHTML = `
+                    <h2>${title}</h2>
+                    <p>${description}</p>
+                    <div class="code-block"><pre><code>${content}</code></pre></div>
+                    <button class="download-button" onclick="downloadFile('${title}', '${encodeURIComponent(content)}')">Download HTML</button>
+                `;
+            } else {
+                contentHTML = `
+                    <h2>${title}</h2>
+                    <p>${description}</p>
+                    <div class="code-block"><pre><code>${content}</code></pre></div>
+                    <button class="copy-button" onclick="copyCode(this)">Copy Code</button>
+                `;
+            }
+            card.innerHTML = contentHTML;
+            return card;
+        }
+        function copyCode(button) {
+            const codeBlock = button.parentNode.querySelector('pre code');
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy Code';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy code: ', err);
+                    button.textContent = 'Error';
+                });
+        }
+        function downloadFile(filename, content) {
+            const decodedContent = decodeURIComponent(content);
+            const blob = new Blob([decodedContent], { type: "text/html;charset=utf-8" });
+            saveAs(blob, filename + ".html");
+        }
+        function appendCards(containerId, cards) {
+            const container = document.getElementById(containerId);
+            cards.forEach(card => container.appendChild(card));
+        }
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                const fileCards = [
+                    createCard('Template File', 'HTML template content', data.templateContent, 'html')
+                ];
+
+                const codeCards = [
+                    createCard('Backend Code', 'Backend code snippet', data.backendCode, 'javascript')
+                ];
+
+                const languageCard = createCard('Languages used', '', `<ul><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>`, 'plain');
+
+                appendCards('file-container', fileCards);
+                appendCards('code-container', codeCards);
+                appendCards('language-container', [languageCard]);
+
+                gsap.fromTo('.card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: "power2.out", stagger: 0.2 });
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById('file-container').innerHTML = `<p>Failed to load content.</p>`;
+                document.getElementById('code-container').innerHTML = `<p>Failed to load content.</p>`;
+                document.getElementById('language-container').innerHTML = `<p>Failed to load content.</p>`;
+            });
+
+        let codeMirrorEditor;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+                mode: "htmlmixed",
+                theme: "material-darker",
+                lineNumbers: true,
+                autoCloseTags: true,
+                matchBrackets: true
+            });
+        });
+
+        function openEditorModal() {
+            document.getElementById('editorModal').style.display = 'block';
+            codeMirrorEditor.refresh();
+        }
+
+        function closeEditorModal() {
+            document.getElementById('editorModal').style.display = 'none';
+        }
+
+    </script>
+</body>
+</html>

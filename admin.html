@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 5px;
+            font-size: 1em;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 150px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3e8e41;
+        }
+
+        .success-message {
+            color: green;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+         .reset-container {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <h1>Admin Panel</h1>
+
+        <div class="form-group">
+            <label for="fileUpload">Upload File:</label>
+            <input type="file" id="fileUpload" name="file" accept="*" />
+            <button onclick="uploadFile()">Upload File</button>
+            <p id="fileUploadMessage"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="codeEditor">Kode Backend:</label>
+            <textarea id="codeEditor" name="code">// Kode backend default</textarea>
+            <button onclick="updateCode()">Update Kode</button>
+            <p id="codeUpdateMessage"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="templateUpload">Upload Template HTML:</label>
+            <input type="file" id="templateUpload" name="template" accept="*" />
+            <button onclick="uploadTemplate()">Upload Template</button>
+            <p id="templateUploadMessage"></p>
+        </div>
+
+         <div class="reset-container">
+            <h2>Reset Content</h2>
+            <p>Click the button below to clear all uploaded content.</p>
+            <button onclick="resetContent()">Reset Content</button>
+            <p id="resetMessage"></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script>
+        const fileUpload = document.getElementById('fileUpload');
+        const codeEditor = document.getElementById('codeEditor');
+        const templateUpload = document.getElementById('templateUpload');
+
+        const fileUploadMessage = document.getElementById('fileUploadMessage');
+        const codeUpdateMessage = document.getElementById('codeUpdateMessage');
+        const templateUploadMessage = document.getElementById('templateUploadMessage');
+        const resetMessage = document.getElementById('resetMessage');
+
+        function uploadFile() {
+            const file = fileUpload.files[0];
+            if (!file) {
+                fileUploadMessage.textContent = 'Pilih file terlebih dahulu.';
+                fileUploadMessage.className = 'error-message';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                fileUploadMessage.textContent = data.message;
+                fileUploadMessage.className = 'success-message';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                fileUploadMessage.textContent = 'Terjadi kesalahan saat mengunggah file.';
+                fileUploadMessage.className = 'error-message';
+            });
+        }
+
+        function updateCode() {
+            const code = codeEditor.value;
+            if (!code) {
+                codeUpdateMessage.textContent = 'Kode tidak boleh kosong.';
+                codeUpdateMessage.className = 'error-message';
+                return;
+            }
+
+            fetch('/update-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                codeUpdateMessage.textContent = data.message;
+                codeUpdateMessage.className = 'success-message';
+                gsap.fromTo(codeUpdateMessage, {opacity:0, y:20}, {opacity:1, y:0, duration:0.5, ease:"power2.out"});
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                codeUpdateMessage.textContent = 'Terjadi kesalahan saat menyimpan kode.';
+                codeUpdateMessage.className = 'error-message';
+            });
+        }
+
+        function uploadTemplate() {
+            const templateFile = templateUpload.files[0];
+            if (!templateFile) {
+                templateUploadMessage.textContent = 'Pilih file template terlebih dahulu.';
+                templateUploadMessage.className = 'error-message';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('template', templateFile);
+
+            fetch('/upload-template', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                templateUploadMessage.textContent = data.message;
+                templateUploadMessage.className = 'success-message';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                templateUploadMessage.textContent = 'Terjadi kesalahan saat mengunggah template.';
+                templateUploadMessage.className = 'error-message';
+            });
+        }
+         function resetContent() {
+            fetch('/reset-data', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                resetMessage.textContent = data.message;
+                resetMessage.className = 'success-message';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resetMessage.textContent = 'Terjadi kesalahan saat mereset konten.';
+                resetMessage.className = 'error-message';
+            });
+        }
+    </script>
+</body>
+</html>
