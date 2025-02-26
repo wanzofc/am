@@ -45,6 +45,7 @@
         }
 
         input[type="file"],
+        input[type="text"],
         textarea {
             width: 100%;
             padding: 10px;
@@ -86,10 +87,24 @@
             margin-top: 10px;
             font-weight: bold;
         }
-         .reset-container {
+
+        .reset-container {
             margin-top: 20px;
             border-top: 1px solid #eee;
             padding-top: 20px;
+        }
+
+        .upload-container {
+            border: 1px dashed #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .upload-container h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
         }
     </style>
 </head>
@@ -98,11 +113,26 @@
     <div class="admin-container">
         <h1>Admin Panel</h1>
 
-        <div class="form-group">
-            <label for="fileUpload">Upload File:</label>
-            <input type="file" id="fileUpload" name="file" accept="*" />
-            <button onclick="uploadFile()">Upload File</button>
-            <p id="fileUploadMessage"></p>
+        <!-- Container Upload File -->
+        <div class="upload-container">
+            <h2>Upload File</h2>
+            <div class="form-group">
+                <label for="fileUpload">Pilih File:</label>
+                <input type="file" id="fileUpload" name="file" accept="*" />
+                <button onclick="uploadFile()">Upload</button>
+                <p id="fileUploadMessage"></p>
+            </div>
+        </div>
+
+        <!-- Container Upload URL -->
+        <div class="upload-container">
+            <h2>Upload dari URL</h2>
+            <div class="form-group">
+                <label for="urlUpload">Masukkan URL:</label>
+                <input type="text" id="urlUpload" name="url" placeholder="https://example.com/file.zip">
+                <button onclick="uploadFromUrl()">Upload dari URL</button>
+                <p id="urlUploadMessage"></p>
+            </div>
         </div>
 
         <div class="form-group">
@@ -119,9 +149,9 @@
             <p id="templateUploadMessage"></p>
         </div>
 
-         <div class="reset-container">
+        <div class="reset-container">
             <h2>Reset Content</h2>
-            <p>Click the button below to clear all uploaded content.</p>
+            <p>Klik tombol di bawah untuk menghapus semua konten yang diunggah.</p>
             <button onclick="resetContent()">Reset Content</button>
             <p id="resetMessage"></p>
         </div>
@@ -130,10 +160,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script>
         const fileUpload = document.getElementById('fileUpload');
+        const urlUpload = document.getElementById('urlUpload');
         const codeEditor = document.getElementById('codeEditor');
         const templateUpload = document.getElementById('templateUpload');
 
         const fileUploadMessage = document.getElementById('fileUploadMessage');
+        const urlUploadMessage = document.getElementById('urlUploadMessage');
         const codeUpdateMessage = document.getElementById('codeUpdateMessage');
         const templateUploadMessage = document.getElementById('templateUploadMessage');
         const resetMessage = document.getElementById('resetMessage');
@@ -162,6 +194,33 @@
                 console.error('Error:', error);
                 fileUploadMessage.textContent = 'Terjadi kesalahan saat mengunggah file.';
                 fileUploadMessage.className = 'error-message';
+            });
+        }
+
+        function uploadFromUrl() {
+            const url = urlUpload.value;
+            if (!url) {
+                urlUploadMessage.textContent = 'Masukkan URL terlebih dahulu.';
+                urlUploadMessage.className = 'error-message';
+                return;
+            }
+
+            fetch('/upload-from-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                urlUploadMessage.textContent = data.message;
+                urlUploadMessage.className = 'success-message';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                urlUploadMessage.textContent = 'Terjadi kesalahan saat mengunggah dari URL.';
+                urlUploadMessage.className = 'error-message';
             });
         }
 
@@ -219,7 +278,8 @@
                 templateUploadMessage.className = 'error-message';
             });
         }
-         function resetContent() {
+
+        function resetContent() {
             fetch('/reset-data', {
                 method: 'POST'
             })
