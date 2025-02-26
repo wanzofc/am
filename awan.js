@@ -62,7 +62,10 @@ app.get('/', (req, res) => {
         // Gabungkan data ke dalam HTML
         let fileList = '';
         data.files.forEach(file => {
-            fileList += `<p><a href="/uploads/${file}">${file}</a></p>`;
+            fileList += `<div class="file-item">
+                            <a href="/uploads/${file}">${file}</a>
+                            <a href="/uploads/${file}" download="${file}" class="download-button">Unduh</a>
+                         </div>`;
         });
 
         let linkList = '';
