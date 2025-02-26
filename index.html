@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <title>ONLY WANZOFC - Obrolan</title>
+    <title>ONLY WANZOFC </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
-
-    <!-- CSS Libraries (CDN) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
@@ -13,8 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-
-    <!--  Inline CSS -->
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -67,17 +64,16 @@
             margin-bottom: 30px;
         }
 
-        /* Gaya untuk carousel tautan */
         .link-carousel-container {
             overflow: hidden;
-            margin-bottom: 30px; /* Tambahkan margin bawah */
+            margin-bottom: 30px;
         }
 
         .link-carousel {
             display: flex;
             transition: transform 0.5s ease-in-out;
-            padding-bottom: 10px; /* Beri ruang untuk indikator */
-            cursor: grab; /* Ikon tangan saat di-hover */
+            padding-bottom: 10px;
+            cursor: grab;
         }
 
         .link-carousel a {
@@ -88,7 +84,7 @@
             border-radius: 5px;
             text-decoration: none;
             color: #333;
-            white-space: nowrap; /* Mencegah teks pecah */
+            white-space: nowrap;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -101,7 +97,7 @@
         }
 
         .link-carousel.active a {
-            pointer-events: none; /* Mencegah tautan diklik saat menyeret */
+            pointer-events: none;
         }
 
         #file-item {
@@ -206,13 +202,13 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        /* Gaya untuk partikel */
         #particles-js {
             position: fixed;
             top: 0;
@@ -223,7 +219,6 @@
             pointer-events: none;
         }
 
-        /* Gaya untuk widget obrolan */
         .chat-widget-button {
             position: fixed;
             bottom: 20px;
@@ -241,17 +236,16 @@
             justify-content: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             transition: background-color 0.3s ease;
-            z-index: 1000; /* Pastikan di atas elemen lain */
+            z-index: 1000;
         }
 
         .chat-widget-button:hover {
             background-color: #0056b3;
         }
 
-       /* Gaya untuk widget obrolan */
         .chat-widget {
             position: fixed;
-            bottom: 80px; /* Posisi di atas tombol */
+            bottom: 80px;
             right: 20px;
             width: 300px;
             height: 400px;
@@ -259,11 +253,10 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            /* tambahkan ini */
             display: none;
             z-index: 1000;
             flex-direction: column;
-            display: flex; /* Aktifkan Flexbox */
+            display: flex;
             transition: all 0.3s ease-in-out;
             transform: scale(0);
             opacity: 0;
@@ -302,10 +295,10 @@
 
         .chat-body {
             padding: 10px;
-            overflow-y: auto; /* Tambahkan scroll jika konten terlalu panjang */
-            flex-grow: 1; /* Biarkan body mengambil sisa ruang vertikal */
-            display: flex; /* Gunakan Flexbox untuk menata pesan */
-            flex-direction: column; /* Susun pesan dari atas ke bawah */
+            overflow-y: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .chat-body ul {
@@ -323,7 +316,6 @@
             border-top: 1px solid #ccc;
         }
 
-        /* Message Styling */
         .message {
             padding: 10px;
             margin-bottom: 5px;
@@ -332,7 +324,7 @@
         }
 
         .message.me {
-            background-color: #DCF8C6; /* WhatsApp-like */
+            background-color: #DCF8C6;
             align-self: flex-end;
         }
 
@@ -350,7 +342,6 @@
             margin-top: 5px;
         }
 
-        /* Reply Styling */
         .reply-section {
             margin-bottom: 10px;
         }
@@ -372,14 +363,12 @@
             color: #555;
         }
 
-        /* General Styling */
         #messages {
             display: flex;
             flex-direction: column;
-            padding-bottom: 50px; /* Adjust for form height */
+            padding-bottom: 50px;
         }
 
-        /* Responsiveness */
         @media (max-width: 768px) {
             .battery-ip-container {
                 flex-direction: column;
@@ -391,325 +380,250 @@
             }
         }
     </style>
-
 </head>
+
 <body>
+<button id="theme-toggle" style="position: fixed; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.5em;" aria-label="Ubah tema">
+    ☀️
+</button>
 
-    <button id="theme-toggle" style="position: fixed; top: 10px; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.5em;" aria-label="Ubah tema">
-        ☀️
-    </button>
-
-    <div class="container">
-        <h1 id="page-title" class="animate__animated animate__fadeInDown">Selamat Datang!</h1>
-
-        <div class="battery-ip-container row row-cols-1 row-cols-md-2 g-4">
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-battery-half fa-2x card-icon"></i>
-                        <h5 class="card-title">Status Baterai</h5>
-                        <p class="card-text">Level: <span id="battery-level">Memuat...</span></p>
-                        <p class="card-text">Status: <span id="battery-status">Memuat...</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-network-wired fa-2x card-icon"></i>
-                        <h5 class="card-title">Alamat IP</h5>
-                        <p class="card-text"><span id="ip-address">Memuat...</span></p>
-                    </div>
+<div class="container">
+    <h1 id="page-title" class="animate__animated animate__fadeInDown">welcome!</h1>
+    <div class="battery-ip-container row row-cols-1 row-cols-md-2 g-4">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-battery-half fa-2x card-icon"></i>
+                    <h5 class="card-title"></h5>
+                    <p class="card-text">Level: <span id="battery-level">Memuat...</span></p>
+                    <p class="card-text">Status: <span id="battery-status">Memuat...</span></p>
                 </div>
             </div>
         </div>
-
-        <h2>File yang Diunggah:</h2>
-        <div id="file-list">
-            <!-- File list akan diisi oleh JavaScript -->
-        </div>
-
-        <h2>Tautan:</h2>
-        <div class="link-carousel-container">
-            <div class="link-carousel" id="linkCarousel" aria-label="Tautan Penting">
-                <a href="#" class="link-item">Tautan 1</a>
-                <a href="#" class="link-item">Tautan 2</a>
-                <a href="#" class="link-item">Tautan 3</a>
-                <a href="#" class="link-item">Tautan 4</a>
-                <a href="#" class="link-item">Tautan 5</a>
-                <a href="#" class="link-item">Tautan 6</a>
-                <a href="#" class="link-item">Tautan 7</a>
-                <a href="#" class="link-item">Tautan 8</a>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-network-wired fa-2x card-icon"></i>
+                    <h5 class="card-title"></h5>
+                    <p class="card-text"><span id="ip-address">Memuat...</span></p>
+                </div>
             </div>
         </div>
     </div>
+    <h2>File yang Diunggah:</h2>
+    <div id="file-list"><!-- FILES_HERE --></div>
+    
+</div>
 
-    <!-- Tombol Widget Chat -->
-    <button class="chat-widget-button" id="chat-widget-button" aria-label="Buka Obrolan">
-        <i class="fas fa-comment"></i>
-    </button>
+<button class="chat-widget-button" id="chat-widget-button" aria-label="Buka Obrolan">
+    <i class="fas fa-comment"></i>
+</button>
 
-    <!-- Widget Chat -->
-    <div class="chat-widget" id="chat-widget" aria-hidden="true">
-        <div class="chat-header">
-            <h3>Obrolan Langsung</h3>
-            <button id="close-chat" aria-label="Tutup Obrolan"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="chat-body">
-            <ul id="messages" class="list-unstyled"></ul>
-        </div>
-        <div class="chat-input-area">
-            <div id="reply-indicator" style="display: none;">
-                Membalas: <span id="reply-to-name"></span>
-                <button type="button" id="cancel-reply" class="btn btn-sm btn-secondary">Batal</button>
-            </div>
-            <form id="chat-form">
-                <div class="input-group">
-                    <input type="text" id="message-input" class="form-control" placeholder="Ketik pesan..."
-                           aria-label="Ketik pesan" aria-describedby="send-button" autocomplete="off">
-                    <button class="btn btn-primary" type="submit" id="send-button">
-                        <i class="fas fa-paper-plane"></i> Kirim
-                    </button>
-                </div>
-                <input type="hidden" id="reply-to-input" value="">
-            </form>
-        </div>
+<div class="chat-widget" id="chat-widget" aria-hidden="true">
+    <div class="chat-header">
+        <h3>wanz room</h3>
+        <button id="close-chat" aria-label="Tutup Obrolan"><i class="fas fa-times"></i></button>
     </div>
+    <div class="chat-body">
+        <ul id="messages" class="list-unstyled"></ul>
+    </div>
+    <div class="chat-input-area">
+        <div id="reply-indicator" style="display: none;">
+            reply: <span id="reply-to-name"></span>
+            <button type="button" id="cancel-reply" class="btn btn-sm btn-secondary">Batal</button>
+        </div>
+        <form id="chat-form" method="post" action="/api/messages">
+            <div class="input-group">
+                <input type="text" id="message-input" class="form-control" placeholder="Ketik pesan..." aria-label="Ketik pesan" aria-describedby="send-button" autocomplete="off" name="content">
+                <input type="hidden" id="sender-input" name="sender" value="Unknown">
+                <input type="hidden" id="reply-to-input" name="replyTo" value="">
+                <button class="btn btn-primary" type="submit" id="send-button">
+                    <i class="fas fa-paper-plane"></i> Kirim
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-    <div id="particles-js"></div>
+<div id="particles-js"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-    <!-- JavaScript Libraries (CDN) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<script>
+    gsap.fromTo("#page-title", { opacity: 0, y: -50 }, { opacity: 1, y: 0, duration: 1 });
 
-    <!-- Inline JavaScript -->
-    <script>
-        // GSAP Animation
-        gsap.fromTo("#page-title", {opacity: 0, y: -50}, {opacity: 1, y: 0, duration: 1});
+    function getBatteryStatus() {
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                document.getElementById('battery-level').textContent = (battery.level * 100).toFixed(0) + '%';
+                document.getElementById('battery-status').textContent = battery.charging ? 'Mengisi daya' : 'Tidak mengisi daya';
+            });
+        } else {
+            document.getElementById('battery-level').textContent = 'Tidak didukung';
+            document.getElementById('battery-status').textContent = 'Tidak didukung';
+        }
+    }
 
-        // Fungsi untuk mendapatkan informasi baterai
-        function getBatteryStatus() {
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(function (battery) {
-                    const batteryLevel = (battery.level * 100).toFixed(0) + '%';
-                    const isCharging = battery.charging ? 'Mengisi daya' : 'Tidak mengisi daya';
-                    document.getElementById('battery-level').textContent = batteryLevel;
-                    document.getElementById('battery-status').textContent = isCharging;
-                });
-            } else {
-                document.getElementById('battery-level').textContent = 'Tidak didukung';
-                document.getElementById('battery-status').textContent = 'Tidak didukung';
+    function getIPAddress() {
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ip-address').textContent = data.ip;
+            })
+            .catch(error => {
+                console.error('Gagal mendapatkan IP address:', error);
+                document.getElementById('ip-address').textContent = 'Gagal mendapatkan IP';
+            });
+    }
+
+    window.onload = function () {
+        getBatteryStatus();
+        getIPAddress();
+    };
+
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        themeToggle.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    });
+
+    particlesJS('particles-js', {
+        "particles": {
+            "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+            "color": { "value": "#00FFFF" },
+            "shape": { "type": "circle", "stroke": { "width": 0, "color": "#000000" }, "polygon": { "nb_sides": 5 }, "image": { "src": "img/github.svg", "width": 100, "height": 100 } },
+            "opacity": { "value": 0.5, "random": false, "anim": { "enable": false, "speed": 1, "opacity_min": 0.1, "sync": false } },
+            "size": { "value": 5, "random": true, "anim": { "enable": false, "speed": 40, "size_min": 0.1, "sync": false } },
+            "line_linked": { "enable": true, "distance": 150, "color": "#00FFFF", "opacity": 0.4, "width": 4 },
+            "move": { "enable": true, "speed": 6, "direction": "none", "random": true, "straight": false, "out_mode": "out", "attract": { "enable": false, "rotateX": 600, "rotateY": 1200 } }
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+            "modes": {
+                "grab": { "distance": 140, "line_linked": { "opacity": 1 } },
+                "bubble": { "distance": 400, "size": 40, "duration": 2, "opacity": 8, "speed": 3 },
+                "repulse": { "distance": 200 },
+                "push": { "particles_nb": 4 },
+                "remove": { "particles_nb": 2 }
+            }
+        },
+        "retina_detect": true,
+        "config_demo": { "hide_card": false, "background_color": "#b61924", "background_image": "", "background_position": "50% 50%", "background_repeat": "no-repeat", "background_size": "cover" }
+    });
+
+    const chatWidgetButton = document.getElementById('chat-widget-button');
+    const chatWidget = document.getElementById('chat-widget');
+    const closeChatButton = document.getElementById('close-chat');
+    const messagesList = document.getElementById('messages');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const replyToInput = document.getElementById('reply-to-input');
+    const replyIndicator = document.getElementById('reply-indicator');
+    const replyToName = document.getElementById('reply-to-name');
+    const cancelReplyButton = document.getElementById('cancel-reply');
+    const senderInput = document.getElementById('sender-input');
+
+    let currentReplyTo = null;
+
+    async function loadMessages() {
+        try {
+            const response = await axios.get('/api/messages');
+            const messages = response.data;
+            displayMessages(messages);
+        } catch (error) {
+            console.error("Error loading messages:", error);
+            Swal.fire({ title: 'Error!', text: 'Failed to load messages.', icon: 'error', confirmButtonText: 'OK' });
+        }
+    }
+
+    function displayMessages(messages) {
+        messagesList.innerHTML = '';
+        messages.forEach(msg => {
+            const item = document.createElement('li');
+            item.classList.add('message');
+            item.classList.add(msg.sender === 'You' ? 'me' : 'other');
+
+            let messageHTML = `<div class="message">
+                                  <div class="sender">${msg.sender}</div>
+                                  <div class="content">${msg.content}</div>
+                               </div>`;
+
+            item.innerHTML = messageHTML;
+            messagesList.appendChild(item);
+        });
+    }
+
+    chatWidgetButton.addEventListener('click', () => {
+        chatWidget.classList.toggle('active');
+        if (chatWidget.classList.contains('active')) {
+            loadMessages();
+        }
+    });
+
+    closeChatButton.addEventListener('click', () => {
+        chatWidget.classList.remove('active');
+    });
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = messageInput.value;
+        const sender = senderInput.value;
+
+        if (content) {
+            try {
+                const response = await axios.post('/api/messages', { sender: sender, content: content, replyTo: currentReplyTo });
+                if (response.status === 201) {
+                    messageInput.value = '';
+                    loadMessages();
+                }
+            } catch (error) {
+                console.error("Error sending message:", error);
             }
         }
+    });
 
-        // Fungsi untuk mendapatkan IP address menggunakan API pihak ketiga
-        function getIPAddress() {
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('ip-address').textContent = data.ip;
-                })
-                .catch(error => {
-                    console.error('Gagal mendapatkan IP address:', error);
-                    document.getElementById('ip-address').textContent = 'Gagal mendapatkan IP';
-                });
-        }
+    const carousel = document.getElementById('linkCarousel');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
 
-        // Panggil fungsi getBatteryStatus dan getIPAddress saat halaman dimuat
-        window.onload = function () {
-            getBatteryStatus();
-            getIPAddress();
-        };
+    carousel.addEventListener('mousedown', (e) => {
+        isDown = true;
+        carousel.classList.add('active');
+        startX = e.pageX - carousel.offsetLeft;
+        scrollLeft = carousel.scrollLeft;
+    });
 
-        // Tema gelap/terang
-        const themeToggle = document.getElementById('theme-toggle');
-        const body = document.body;
+    carousel.addEventListener('mouseleave', () => {
+        isDown = false;
+        carousel.classList.remove('active');
+    });
 
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            themeToggle.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙'; // Ganti emoji
-        });
+    carousel.addEventListener('mouseup', () => {
+        isDown = false;
+        carousel.classList.remove('active');
+    });
 
-        // Partikel
-        particlesJS('particles-js', {
-            "particles": {
-                "number": {
-                    "value": 80,
-                    "density": {
-                        "enable": true,
-                        "value_area": 800
-                    }
-                },
-                "color": {
-                    "value": "#00FFFF" // Warna cyan
-                },
-                "shape": {
-                    "type": "circle",
-                    "stroke": {
-                        "width": 0,
-                        "color": "#000000"
-                    },
-                    "polygon": {
-                        "nb_sides": 5
-                    },
-                    "image": {
-                        "src": "img/github.svg",
-                        "width": 100,
-                        "height": 100
-                    }
-                },
-                "opacity": {
-                    "value": 0.5,
-                    "random": false,
-                    "anim": {
-                        "enable": false,
-                        "speed": 1,
-                        "opacity_min": 0.1,
-                        "sync": false
-                    }
-                },
-                "size": {
-                    "value": 5,
-                    "random": true,
-                    "anim": {
-                        "enable": false,
-                        "speed": 40,
-                        "size_min": 0.1,
-                        "sync": false
-                    }
-                },
-                "line_linked": {
-                    "enable": true,
-                    "distance": 150,
-                    "color": "#00FFFF", // Warna cyan
-                    "opacity": 0.4,
-                    "width": 1
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 6,
-                    "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "attract": {
-                        "enable": false,
-                        "rotateX": 600,
-                        "rotateY": 1200
-                    }
-                }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "grab"
-                    },
-                    "onclick": {
-                        "enable": true,
-                        "mode": "push"
-                    },
-                    "resize": true
-                },
-                "modes": {
-                    "grab": {
-                        "distance": 140,
-                        "line_linked": {
-                            "opacity": 1
-                        }
-                    },
-                    "bubble": {
-                        "distance": 400,
-                        "size": 40,
-                        "duration": 2,
-                        "opacity": 8,
-                        "speed": 3
-                    },
-                    "repulse": {
-                        "distance": 200
-                    },
-                    "push": {
-                        "particles_nb": 4
-                    },
-                    "remove": {
-                        "particles_nb": 2
-                    }
-                }
-            },
-            "retina_detect": true,
-            "config_demo": {
-                "hide_card": false,
-                "background_color": "#b61924",
-                "background_image": "",
-                "background_position": "50% 50%",
-                "background_repeat": "no-repeat",
-                "background_size": "cover"
-            }
-        });
-
-        // Obrolan Widget
-        const chatWidgetButton = document.getElementById('chat-widget-button');
-        const chatWidget = document.getElementById('chat-widget');
-        const closeChatButton = document.getElementById('close-chat');
-        const messages = document.getElementById('messages');
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
-        const replyToInput = document.getElementById('reply-to-input');
-        const replyIndicator = document.getElementById('reply-indicator');
-        const replyToName = document.getElementById('reply-to-name');
-        const cancelReplyButton = document.getElementById('cancel-reply');
-
-        let socket;
-        let currentReplyTo = null;
-
-        chatWidgetButton.addEventListener('click', () => {
-            chatWidget.classList.toggle('active');
-        });
-
-        closeChatButton.addEventListener('click', () => {
-            chatWidget.classList.remove('active');
-        });
-
-        // Inisialisasi carousel
-        const carousel = document.getElementById('linkCarousel');
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        carousel.addEventListener('mousedown', (e) => {
-            isDown = true;
-            carousel.classList.add('active');
-            startX = e.pageX - carousel.offsetLeft;
-            scrollLeft = carousel.scrollLeft;
-        });
-        carousel.addEventListener('mouseleave', () => {
-            isDown = false;
-            carousel.classList.remove('active');
-        });
-        carousel.addEventListener('mouseup', () => {
-            isDown = false;
-            carousel.classList.remove('active');
-        });
-        carousel.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - carousel.offsetLeft;
-            const walk = (x - startX) * 3; //scroll-fast
-            carousel.scrollLeft = scrollLeft - walk;
-        });
+    carousel.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - carousel.offsetLeft;
+        const walk = (x - startX) * 3;
+        carousel.scrollLeft = scrollLeft - walk;
+    });
     </script>
 </body>
 </html>
