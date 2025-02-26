@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const mime = require('mime-types'); // Tambahkan library mime-types
 
 const app = express();
 const port = 3000;
@@ -64,7 +65,7 @@ app.get('/', (req, res) => {
         data.files.forEach(file => {
             fileList += `<div class="file-item">
                             <a href="/uploads/${file}">${file}</a>
-                            <a href="/uploads/${file}" download="${file}" class="download-button">Unduh</a>
+                            <a href="/download/${file}" class="download-button">Unduh</a>
                          </div>`;
         });
 
@@ -109,6 +110,24 @@ app.post('/addLink', (req, res) => {
         saveData(); // Simpan perubahan data
     }
     res.redirect('/admin'); // Redirect kembali ke halaman admin
+});
+
+// Rute untuk menangani unduhan file (penting!)
+app.get('/download/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filepath = path.join(__dirname, 'uploads', filename);
+
+    // Tentukan tipe konten (MIME type) berdasarkan ekstensi file
+    const contentType = mime.lookup(filename) || 'application/octet-stream'; // Fallback ke binary jika tidak dikenali
+
+    // Set header 'Content-Type'
+    res.setHeader('Content-Type', contentType);
+
+    // Set header 'Content-Disposition' untuk memberitahu browser untuk mengunduh file
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    // Kirim file sebagai respons
+    res.sendFile(filepath);
 });
 
 app.listen(port, () => {
