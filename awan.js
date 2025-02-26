@@ -35,6 +35,14 @@ const MessageSchema = new mongoose.Schema({
 
 const Message = mongoose.model('Message', MessageSchema);
 
+// ** Model Request **
+const RequestSchema = new mongoose.Schema({
+    requestText: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+});
+
+const Request = mongoose.model('Request', RequestSchema);
+
 // Konfigurasi Multer untuk upload file
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -48,6 +56,7 @@ const upload = multer({ storage: storage });
 
 // Middleware untuk parse body permintaan (untuk form data)
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // Penting untuk parsing JSON
 
 // Buat folder 'uploads' jika belum ada
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -93,7 +102,7 @@ app.get('/', async (req, res) => {
             </div>
         `).join('');
 
-        // Generate tampilan daftar tautan
+        // Generate tampilan daftar taut ACCan
         let linkList = data.links.map(link => `
             <div class="link-item">
                 <a href="${link}" target="_blank">${link}</a>
@@ -122,13 +131,24 @@ app.get('/', async (req, res) => {
 });
 
 // Rute untuk halaman admin (admin.html)
-app.get('/admin', (req, res) => {
-    fs.readFile('admin.html', 'utf8', (err, html) => {
+app.get('/admin', async (req, res) => {
+    fs.readFile('admin.html', 'utf8', async (err, html) => { //Make the function async
         if (err) {
             res.status(500).send('Error loading admin.html');
             return;
         }
-        res.send(html);
+
+        // Ambil daftar permintaan dari database
+        const requests = await Request.find();
+
+        let requestList = requests.map(req => `
+            <div class="request-item">
+                ${req.requestText} - ${req.timestamp}
+            </div>
+        `).join('');
+
+        const modifiedHtml = html.replace('<!-- REQUESTS_HERE -->', requestList);
+        res.send(modifiedHtml);
     });
 });
 
@@ -190,6 +210,52 @@ app.get('/download/:filename', (req, res) => {
 
 // Serve files in /uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ** Rute untuk halaman permintaan (request.html) **
+app.get('/request', (req, res) => {
+    fs.readFile('request.html', 'utf8', (err, html) => {
+        if (err) {
+            res.status(500).send('Error loading request.html');
+            return;
+        }
+        res.send(html);
+    });
+});
+
+// ** Rute untuk menangani pengiriman permintaan **
+app.post('/api/requests', async (req, res) => {
+    try {
+        const request = new Request({
+            requestText: req.body.requestText
+        });
+        await request.save();
+        res.redirect('/'); // Redirect kembali ke halaman utama
+    } catch (error) {
+        console.error("Gagal menyimpan request:", error);
+        res.status(500).send('Gagal mengirim request.');
+    }
+});
+
+// ** Rute untuk halaman gacha (gacha.html) **
+app.get('/gacha', (req, res) => {
+    fs.readFile('ghacha.html', 'utf8', (err, html) => {
+        if (err) {
+            res.status(500).send('Error loading gacha.html');
+            return;
+        }
+        res.send(html);
+    });
+});
+
+// ** Rute untuk menangani logika gacha **
+app.get('/api/gacha', (req, res) => {
+    // Contoh sederhana: pilih item secara acak dari daftar
+    const items = ["Item A", "Item B", "Item C", "Item D"];
+    const randomIndex = Math.floor(Math.random() * items.length);
+    const result = items[randomIndex];
+
+    res.json({ result: result }); // Kirim hasil sebagai JSON
+});
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
